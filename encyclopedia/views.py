@@ -14,10 +14,10 @@ class SearchForm(forms.Form):
     
 class NewForm(forms.Form):
     title = forms.CharField(label='Title')
-    text = forms.CharField(label='Text', widget=forms.Textarea(attrs={'rows':5, 'cols':10})) 
+    text = forms.CharField(label='Text', widget=forms.Textarea())
 
 class EditForm(forms.Form):
-    edit = forms.CharField(label='Text', initial='wtf', widget=forms.Textarea(attrs={'rows':5, 'cols':10})) 
+    edit = forms.CharField(label='Text', initial='wtf', widget=forms.Textarea()) 
 
 
 def index(request):
@@ -49,10 +49,7 @@ def search(request):
                 })
 
 def entry(request, entry):
-    
     if util.get_entry(entry):
-        # title = util.get_entry(entry).split()[1]
-
         content = markdowner.convert(util.get_entry(entry))
         return render(request, "encyclopedia/entry.html",{
         "content": content, 
@@ -77,13 +74,9 @@ def new(request):
                 "form": SearchForm()  
                 })
             else:
-                with open(os.path.join('entries/',form.cleaned_data["title"] + ".md"), "x") as file1:
-                    # toFile = form.cleaned_data['text']
-                    file1.write(form.cleaned_data['text'])
-                    return HttpResponseRedirect("/wiki/" + form.cleaned_data["title"])
-                
-                
-        
+                util.save_entry(form.cleaned_data["title"],form.cleaned_data['text'])
+                return HttpResponseRedirect("/wiki/" + form.cleaned_data["title"])
+  
     else:     
         return render(request, "encyclopedia/new.html", {
         "form": SearchForm(),  
@@ -92,21 +85,27 @@ def new(request):
 
 
 def edit(request, page):
-    with open(os.path.join('entries/', page + ".md"), "r") as file1:
-        txtToEdit = file1.read()
-        formForEdit = EditForm(initial={'edit': txtToEdit})
-        print("formForEdit")
-        print(formForEdit)
+    if request.method == "POST":
+        form = EditForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data
+            util.save_entry(page, content['edit'])
+            print("from edit POST" )
+            print(content)
+            return HttpResponseRedirect("/wiki/" + page)
+    else:    
+        with open(os.path.join('entries/', page + ".md"), "r") as file1:
+            txtToEdit = file1.read()
+            formForEdit = EditForm(initial={'edit': txtToEdit})
+            print("formForEdit")
+            print(formForEdit)
 
-        return render(request, "encyclopedia/edit.html", {
-            "editForm" : formForEdit, 
-            "title" : page, 
-            "form": SearchForm(),  
-        })
+            return render(request, "encyclopedia/edit.html", {
+                "editForm" : formForEdit, 
+                "title" : page, 
+                "form": SearchForm(),  
+            })
 
 
-    # #  if request.method == "POST":
-    #     form = EditForm(request.POST)
-    #     if form.is_valid():
-    #         print(form)
-    #         return HttpResponse("")
+def random(request):
+    return HttpResponse("this will be the random page")

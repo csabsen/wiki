@@ -4,6 +4,7 @@ from . import util
 from django import forms
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
+import random
 import os
 
 
@@ -38,6 +39,7 @@ def search(request):
                 if q in lowerCaseEntries[i]:
                     foundEntry.append(entries[i])
             if len(foundEntry) > 0:
+                print(foundEntry)
                 return render(request, "encyclopedia/search.html", {
                     "entries": foundEntry, 
                     "form": SearchForm()
@@ -107,5 +109,8 @@ def edit(request, page):
             })
 
 
-def random(request):
-    return HttpResponse("this will be the random page")
+def random_page(request):
+    entries = util.list_entries()
+    randomize = random.randint(0,len(entries))
+
+    return HttpResponseRedirect("/wiki/" + entries[randomize])

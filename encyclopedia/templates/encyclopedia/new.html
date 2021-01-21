@@ -8,7 +8,7 @@
     <h3>Add new page</h3>
     <form action="{% url 'new' %}" method="post">
         {% csrf_token %}
-        {{newForm}}
+        {{newForm.as_p}}
         <input type="submit" name="Submit" id="submitNew">
     </form>
     

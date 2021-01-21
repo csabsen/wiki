@@ -36,3 +36,15 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+textarea {
+    height: 40vh;
+}
+
+p {
+    display: grid;
+}
+
+.main input{
+    width: 80%; 
+}
